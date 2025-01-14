@@ -7,7 +7,7 @@ ARG CUDA="121"
 FROM --platform=amd64 $DOCKER_FROM AS base
 
 ARG TEXT_GENERATION_WEBUI_REPO_URL="https://github.com/oobabooga/text-generation-webui.git"
-ARG TEXT_GENERATION_WEBUI_REF="v1.13"
+ARG TEXT_GENERATION_WEBUI_REF="v1.12"
 ARG GPT_SOVITS_REPO_URL="https://github.com/pczora/GPT-SoVITS.git"
 ARG GPT_SOVITS_REF="rest_api"
 
