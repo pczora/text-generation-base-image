@@ -8,8 +8,6 @@ FROM --platform=amd64 $DOCKER_FROM AS base
 
 ARG TEXT_GENERATION_WEBUI_REPO_URL="https://github.com/oobabooga/text-generation-webui.git"
 ARG TEXT_GENERATION_WEBUI_REF="v1.13"
-ARG GPT_SOVITS_REPO_URL="https://github.com/pczora/GPT-SoVITS.git"
-ARG GPT_SOVITS_REF="rest_api"
 
 # Install Python plus openssh, which is our minimum set of required packages.
 RUN apt-get update -y && \
@@ -44,5 +42,11 @@ RUN git clone $TEXT_GENERATION_WEBUI_REPO_URL && \
     pip3 install -r exllama/requirements.txt && \
     pip3 install --upgrade safetensors==0.4.3 && \
     pip3 install --upgrade --no-deps exllamav2 && \
+    pip3 install --upgrade fastapi==0.111.0 && \
     deactivate
 COPY --chmod=755 scripts ./scripts
+
+WORKDIR /
+COPY --chmod=755 start-with-ui.sh /start-with-ui.sh
+
+CMD [ "/start-with-ui.sh" ]
