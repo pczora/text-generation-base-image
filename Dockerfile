@@ -8,14 +8,21 @@ FROM --platform=amd64 $DOCKER_FROM AS base
 
 ARG TEXT_GENERATION_WEBUI_REPO_URL="https://github.com/oobabooga/text-generation-webui.git"
 ARG TEXT_GENERATION_WEBUI_REF="v1.13"
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Only necessary on Ubuntu 22.04; remove if building on Ubuntu > 22.04
+RUN apt-get update -y && \
+    apt-get install -y software-properties-common && \
+    add-apt-repository ppa:deadsnakes/ppa -y
 
 # Install Python plus openssh, which is our minimum set of required packages.
-RUN apt-get update -y && \
-    apt-get install -y python3 python3-pip python3-venv && \
-    apt-get install -y --no-install-recommends openssh-server openssh-client git git-lfs espeak-ng curl unzip && \
+RUN apt-get install -y --no-install-recommends python3.11 python3-pip python3.11-venv openssh-server openssh-client git git-lfs espeak-ng curl unzip && \
     python3 -m pip install --upgrade pip && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
+
+RUN update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.11 11 && \
+    update-alternatives --set python3 /usr/bin/python3.11
 
 ENV PATH="/usr/local/cuda/bin:${PATH}"
 
