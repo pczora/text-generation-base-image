@@ -1,4 +1,4 @@
-IMAGE_NAME ?= pczora/text-generation-base:0.0.3_v1.13_cuda
+IMAGE_NAME ?= pczora/text-generation-base:v3.11_cuda
 
 image:
 	docker buildx build --platform linux/amd64 -t ${IMAGE_NAME} -f Dockerfile .
