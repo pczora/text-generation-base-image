@@ -2,7 +2,7 @@ FROM ubuntu:24.04
 
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked,rw \
     apt update && \
-    apt install --no-install-recommends -y git vim build-essential python3 python3-dev pip3 bash curl && \
+    apt install --no-install-recommends -y git vim build-essential python3 python3-dev pip bash curl && \
     rm -rf /var/lib/apt/lists/*
 # Clone repository
 RUN git clone https://github.com/oobabooga/text-generation-webui && \
