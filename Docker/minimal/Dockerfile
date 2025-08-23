@@ -11,9 +11,8 @@ RUN git clone https://github.com/oobabooga/text-generation-webui && \
     python3 -m venv venv
 
 WORKDIR text-generation-webui
-RUN source venv/bin/activate && pip3 install -r requirements/portable/requirements.txt && pip3 install autoawq
+RUN source venv/bin/activate && pip3 install -r requirements/full/requirements.txt && pip3 install autoawq
 EXPOSE ${CONTAINER_PORT:-7860} ${CONTAINER_API_PORT:-5000} ${CONTAINER_API_STREAM_PORT:-5005}
-# Launch server (basic command)
-COPY entrypoint.sh entrypoint.sh
 
-ENTRYPOINT ["/bin/bash", "/text-generation-webui/entrypoint.sh"]
+# Launch server (basic command)
+ENTRYPOINT ["/bin/bash","-lc","source venv/bin/activate && python server.py --listen --listen-host 0.0.0.0"]
