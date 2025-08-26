@@ -12,7 +12,9 @@ RUN git clone https://github.com/oobabooga/text-generation-webui && \
 
 WORKDIR text-generation-webui
 RUN source venv/bin/activate && pip3 install -r requirements/full/requirements.txt && pip3 install autoawq
-EXPOSE ${CONTAINER_PORT:-7860} ${CONTAINER_API_PORT:-5000} ${CONTAINER_API_STREAM_PORT:-5005} 5000
+RUN source venv/bin/activate && CMAKE_ARGS="-DGGML_CUDA=on" pip3 install --verbose llama-cpp-python
+
+EXPOSE ${CONTAINER_PORT:-7860} ${CONTAINER_API_PORT:-5000} ${CONTAINER_API_STREAM_PORT:-5005}
 
 # Launch server (basic command)
 CMD ["/bin/bash","-lc","source venv/bin/activate && python server.py --listen --listen-host 0.0.0.0 ${UI_ARGS}"]
