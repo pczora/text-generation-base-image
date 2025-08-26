@@ -2,8 +2,19 @@ FROM ubuntu:24.04
 
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked,rw \
     apt update && \
-    apt install --no-install-recommends -y git vim build-essential python3.12 python3.12-dev python3.12-venv pip bash curl bash && \
+    apt install --no-install-recommends -y git vim build-essential python3.12 python3.12-dev python3.12-venv pip bash curl dkms cmake && \
     rm -rf /var/lib/apt/lists/*
+
+RUN wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/x86_64/cuda-ubuntu2404.pin && \
+    mv cuda-ubuntu2404.pin /etc/apt/preferences.d/cuda-repository-pin-600 && \
+    wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/x86_64/cuda-repo-ubuntu2404_12.5.82-1_amd64.deb && \
+    dpkg -i cuda-repo-ubuntu2404_12.5.82-1_amd64.deb && \
+    cp /var/cuda-repo-ubuntu2404*/cuda-*-keyring.gpg /usr/share/keyrings/ && \
+    apt update && \
+    apt install -y cuda-toolkit-12-5 && \
+    export PATH=/usr/local/cuda/bin:$PATH && \
+    export LD_LIBRARY_PATH=/usr/local/cuda/lib64:$LD_LIBRARY_PATH
+
 SHELL ["/bin/bash", "-c"]
 # Clone repository
 RUN git clone https://github.com/oobabooga/text-generation-webui && \
