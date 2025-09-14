@@ -9,9 +9,9 @@ SHELL ["/bin/bash", "-c"]
 # Clone repository
 RUN git clone https://github.com/oobabooga/text-generation-webui && \
     cd text-generation-webui && \
+    git checkout v3.11 && \
     python3 -m venv venv
 WORKDIR text-generation-webui
-RUN sed -i 's/ "--flash-attn", "on",/ "--flash-attn"/g' modules/llama_cpp_server.py
 RUN source venv/bin/activate && pip3 install -r requirements/full/requirements.txt && pip3 install autoawq
 RUN source venv/bin/activate && pip3 install https://github.com/oobabooga/llama-cpp-binaries/releases/download/v0.37.0/llama_cpp_binaries-0.37.0+cu124avx-py3-none-linux_x86_64.whl
 
