@@ -6,12 +6,12 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked,rw \
     rm -rf /var/lib/apt/lists/*
 
 SHELL ["/bin/bash", "-c"]
-RUN git clone https://github.com/oobabooga/text-generation-webui && \
+RUN git clone --depth 1 --branch v4.9 https://github.com/oobabooga/text-generation-webui && \
     cd text-generation-webui && \
-    git checkout v4.9 && \
     python3 -m venv venv
 WORKDIR text-generation-webui
-RUN source venv/bin/activate && pip3 install -r requirements/full/requirements.txt && pip3 install autoawq
+RUN --mount=type=cache,target=/root/.cache/pip \
+    source venv/bin/activate && pip3 install -r requirements/full/requirements.txt && pip3 install autoawq
 RUN source venv/bin/activate && pip3 install https://github.com/oobabooga/llama-cpp-binaries/releases/download/v0.138.0/llama_cpp_binaries-0.138.0+cu131-py3-none-linux_x86_64.whl
 
 EXPOSE ${CONTAINER_PORT:-7860} ${CONTAINER_API_PORT:-5000} ${CONTAINER_API_STREAM_PORT:-5005}
