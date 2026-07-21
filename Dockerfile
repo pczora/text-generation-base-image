@@ -9,7 +9,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked,rw \
     dpkg -i /tmp/cuda-keyring.deb && \
     rm /tmp/cuda-keyring.deb && \
     apt update && \
-    apt install --no-install-recommends -y cuda-nvcc-13-0 && \
+    apt install --no-install-recommends -y cuda-nvcc-12-8 && \
     rm -rf /var/lib/apt/lists/*
 
 SHELL ["/bin/bash", "-c"]
@@ -19,14 +19,14 @@ RUN git clone --depth 1 --branch v4.9 https://github.com/oobabooga/text-generati
 WORKDIR text-generation-webui
 RUN --mount=type=cache,target=/root/.cache/pip \
     source venv/bin/activate && \
-    pip3 install torch torchvision --extra-index-url https://download.pytorch.org/whl/cu130
+    pip3 install torch==2.11.0 torchvision --extra-index-url https://download.pytorch.org/whl/cu128
 RUN --mount=type=cache,target=/root/.cache/pip \
     source venv/bin/activate && \
     grep -v xformers requirements/full/requirements.txt | pip3 install -r /dev/stdin && \
     pip3 install gptqmodel
 RUN --mount=type=cache,target=/root/.cache/pip \
     source venv/bin/activate && \
-    pip3 install https://github.com/oobabooga/llama-cpp-binaries/releases/download/v0.138.0/llama_cpp_binaries-0.138.0+cu131-py3-none-linux_x86_64.whl
+    pip3 install https://github.com/oobabooga/llama-cpp-binaries/releases/download/v0.138.0/llama_cpp_binaries-0.138.0+cu124-py3-none-linux_x86_64.whl
 
 EXPOSE ${CONTAINER_PORT:-7860} ${CONTAINER_API_PORT:-5000} ${CONTAINER_API_STREAM_PORT:-5005}
 
