@@ -1,5 +1,7 @@
 FROM ubuntu:24.04
 
+ENV CUDA_HOME=/usr/local/cuda
+
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked,rw \
     apt update && \
     apt install --no-install-recommends -y git vim build-essential python3.12 python3.12-dev python3.12-venv pip bash curl dkms cmake && \
