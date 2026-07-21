@@ -4,7 +4,12 @@ ENV CUDA_HOME=/usr/local/cuda
 
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked,rw \
     apt update && \
-    apt install --no-install-recommends -y git vim build-essential python3.12 python3.12-dev python3.12-venv pip bash curl dkms cmake && \
+    apt install --no-install-recommends -y git vim build-essential python3.12 python3.12-dev python3.12-venv pip bash curl dkms cmake wget && \
+    wget -qO /tmp/cuda-keyring.deb https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/x86_64/cuda-keyring_1.1-1_all.deb && \
+    dpkg -i /tmp/cuda-keyring.deb && \
+    rm /tmp/cuda-keyring.deb && \
+    apt update && \
+    apt install --no-install-recommends -y cuda-nvcc-13-0 && \
     rm -rf /var/lib/apt/lists/*
 
 SHELL ["/bin/bash", "-c"]
