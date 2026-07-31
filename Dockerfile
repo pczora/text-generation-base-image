@@ -9,7 +9,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked,rw \
     dpkg -i /tmp/cuda-keyring.deb && \
     rm /tmp/cuda-keyring.deb && \
     apt update && \
-    apt install --no-install-recommends -y cuda-nvcc-12-8 && \
+    apt install --no-install-recommends -y cuda-nvcc-12-9 && \
     rm -rf /var/lib/apt/lists/*
 
 SHELL ["/bin/bash", "-c"]
