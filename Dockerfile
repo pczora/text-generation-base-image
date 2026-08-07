@@ -1,59 +1,33 @@
-ARG CUDA_VERSION="12.1.1"
-ARG CUDNN_VERSION="8"
-ARG UBUNTU_VERSION="22.04"
-ARG DOCKER_FROM=nvidia/cuda:$CUDA_VERSION-cudnn$CUDNN_VERSION-devel-ubuntu$UBUNTU_VERSION
-ARG CUDA="121"
-# Base NVidia CUDA Ubuntu image
-FROM --platform=amd64 $DOCKER_FROM AS base
+FROM ubuntu:24.04
 
-ARG TEXT_GENERATION_WEBUI_REPO_URL="https://github.com/oobabooga/text-generation-webui.git"
-ARG TEXT_GENERATION_WEBUI_REF="v1.13"
-ENV DEBIAN_FRONTEND=noninteractive
+ENV CUDA_HOME=/usr/local/cuda
 
-# Only necessary on Ubuntu 22.04; remove if building on Ubuntu > 22.04
-RUN apt-get update -y && \
-    apt-get install -y software-properties-common && \
-    add-apt-repository ppa:deadsnakes/ppa -y
-
-# Install Python plus openssh, which is our minimum set of required packages.
-RUN apt-get install -y --no-install-recommends python3.11 python3-pip python3.11-venv openssh-server openssh-client git git-lfs espeak-ng curl unzip && \
-    python3 -m pip install --upgrade pip && \
-    apt-get clean && \
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked,rw \
+    apt update && \
+    apt install --no-install-recommends -y git vim build-essential python3.12 python3.12-dev python3.12-venv pip bash curl dkms cmake wget && \
+    wget -qO /tmp/cuda-keyring.deb https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/x86_64/cuda-keyring_1.1-1_all.deb && \
+    dpkg -i /tmp/cuda-keyring.deb && \
+    rm /tmp/cuda-keyring.deb && \
+    apt update && \
+    apt install --no-install-recommends -y cuda-nvcc-12-9 && \
     rm -rf /var/lib/apt/lists/*
 
-RUN update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.11 11 && \
-    update-alternatives --set python3 /usr/bin/python3.11
-
-ENV PATH="/usr/local/cuda/bin:${PATH}"
-
 SHELL ["/bin/bash", "-c"]
-WORKDIR /root
-
-# Install text-generation-webui, including all extensions
-# Also includes exllama
-# We remove the ExLlama automatically installed by text-generation-webui
-# so we're always up-to-date with any ExLlama changes, which will auto compile its own extension
-RUN git clone $TEXT_GENERATION_WEBUI_REPO_URL && \
+RUN git clone --depth 1 --branch v4.9 https://github.com/oobabooga/text-generation-webui && \
     cd text-generation-webui && \
-    # checkout a specific commit to avoid breaking changes in the future
-    git checkout $TEXT_GENERATION_WEBUI_REF && \
-    python3 -m venv /text-generation-webui-env && \
-    source /text-generation-webui-env/bin/activate && \
-    pip3 install --no-cache-dir -U torch==2.2.2 torchvision torchaudio wheel setuptools pyyaml --extra-index-url https://download.pytorch.org/whl/cu$CUDA && \
-    pip3 install -r requirements.txt && \
-    bash -c 'for req in extensions/*/requirements.txt ; do pip3 install -r "$req" ; done' && \
-    mkdir -p repositories && \
-    cd repositories && \
-    git clone https://github.com/turboderp/exllama && \
-    sed 's/safetensors==0.3.2/safetensors==0.4.3/g' exllama/requirements.txt && \
-    pip3 install -r exllama/requirements.txt && \
-    pip3 install --upgrade safetensors==0.4.3 && \
-    pip3 install --upgrade --no-deps exllamav2 && \
-    pip3 install --upgrade fastapi==0.111.0 && \
-    deactivate
-COPY --chmod=755 scripts ./scripts
+    python3 -m venv venv
+WORKDIR text-generation-webui
+RUN --mount=type=cache,target=/root/.cache/pip \
+    source venv/bin/activate && \
+    pip3 install torch==2.11.0 torchvision --extra-index-url https://download.pytorch.org/whl/cu128
+RUN --mount=type=cache,target=/root/.cache/pip \
+    source venv/bin/activate && \
+    grep -v xformers requirements/full/requirements.txt | pip3 install -r /dev/stdin && \
+    pip3 install gptqmodel
+RUN --mount=type=cache,target=/root/.cache/pip \
+    source venv/bin/activate && \
+    pip3 install https://github.com/oobabooga/llama-cpp-binaries/releases/download/v0.138.0/llama_cpp_binaries-0.138.0+cu124-py3-none-linux_x86_64.whl
 
-WORKDIR /
-COPY --chmod=755 start-with-ui.sh /start-with-ui.sh
+EXPOSE ${CONTAINER_PORT:-7860} ${CONTAINER_API_PORT:-5000} ${CONTAINER_API_STREAM_PORT:-5005}
 
-CMD [ "/start-with-ui.sh" ]
+CMD ["/bin/bash","-lc","source venv/bin/activate && python server.py --listen --listen-host 0.0.0.0 ${UI_ARGS}"]
