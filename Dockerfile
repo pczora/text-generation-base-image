@@ -23,7 +23,7 @@ RUN --mount=type=cache,target=/root/.cache/pip \
 RUN --mount=type=cache,target=/root/.cache/pip \
     source venv/bin/activate && \
     grep -v xformers requirements/full/requirements.txt | pip3 install -r /dev/stdin && \
-    pip3 install gptqmodel
+    pip3 install gptqmodel==7.3.1
 RUN --mount=type=cache,target=/root/.cache/pip \
     source venv/bin/activate && \
     pip3 install https://github.com/oobabooga/llama-cpp-binaries/releases/download/v0.138.0/llama_cpp_binaries-0.138.0+cu124-py3-none-linux_x86_64.whl
