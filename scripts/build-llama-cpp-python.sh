@@ -18,7 +18,7 @@ fi
 export PATH=/usr/local/cuda/bin:"$PATH"
 export FORCE_CMAKE=1
 
-if pip3 install --no-cache-dir llama-cpp-python; then
+if pip3 install --no-cache-dir llama-cpp-python==0.3.34; then
 	# touch this file so we don't build again on reboots
 	touch /.built.llama-cpp-python
 fi

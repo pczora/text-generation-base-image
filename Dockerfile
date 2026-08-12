@@ -19,7 +19,7 @@ RUN git clone --depth 1 --branch v4.9 https://github.com/oobabooga/text-generati
 WORKDIR text-generation-webui
 RUN --mount=type=cache,target=/root/.cache/pip \
     source venv/bin/activate && \
-    pip3 install torch==2.11.0 torchvision --extra-index-url https://download.pytorch.org/whl/cu128
+    pip3 install torch==2.11.0 torchvision==0.26.0 --extra-index-url https://download.pytorch.org/whl/cu128
 RUN --mount=type=cache,target=/root/.cache/pip \
     source venv/bin/activate && \
     grep -v xformers requirements/full/requirements.txt | pip3 install -r /dev/stdin && \
